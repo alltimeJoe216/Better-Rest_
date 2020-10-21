@@ -1,7 +1,10 @@
 import CreateML
 import Foundation
 
+// Snag our data from fileURL
 let data = try MLDataTable(contentsOf: URL(fileURLWithPath: "Users/joeveverka/Desktop/better/better-rest.json"))
+
+// Train 80%, Test 20%
 let (trainingData, testingData) = data.randomSplit(by: 0.8)
 
 let regressor = try MLRegressor(trainingData: trainingData, targetColumn: "actualSleep")
