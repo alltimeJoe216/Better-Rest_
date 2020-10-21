@@ -10,30 +10,37 @@ import UIKit
 
 class ViewController: UIViewController {
     
+    // MARK: - UIViews
     var wakeUpTime: UIDatePicker!
-    
     var sleepAmountTime: UIStepper!
     var sleepAmountLabel: UILabel!
-    
     var coffeeAmountStepper: UIStepper!
     var coffeeAmountLabel: UILabel!
     
+    // MARK: - Lifecycle
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        navigationController?.navigationBar.prefersLargeTitles = true
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Calculate", style: .plain
+                                                            , target: self, action: #selector(calculateBedtime))
+    }
     override func loadView() {
+        // Init view
         view = UIView()
         view.backgroundColor = .white
-        
+        // Stack view
         let mainStackView = UIStackView()
         mainStackView.axis = .vertical
-        
         mainStackView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(mainStackView)
-        
         NSLayoutConstraint.activate([
             mainStackView.topAnchor.constraint(equalTo: view.layoutMarginsGuide.topAnchor, constant: 20),
             mainStackView.leadingAnchor.constraint(equalTo: view.layoutMarginsGuide.leadingAnchor),
             mainStackView.trailingAnchor.constraint(equalTo: view.layoutMarginsGuide.trailingAnchor)
         ])
         
+        // Wake up time
         let wakeUpTitle = UILabel()
         wakeUpTitle.font = UIFont.preferredFont(forTextStyle: .headline)
         wakeUpTitle.numberOfLines = 0
@@ -46,8 +53,8 @@ class ViewController: UIViewController {
         wakeUpTime.minuteInterval = 15
         mainStackView.addArrangedSubview(wakeUpTime)
         
+        // Picker components
         var components = Calendar.current.dateComponents([.hour, .minute], from: Date())
-        
         components.hour = 8
         components.minute = 0
         wakeUpTime.date = Calendar.current.date(from: components) ?? Date()
@@ -100,17 +107,9 @@ class ViewController: UIViewController {
         
         sleepAmountChanged()
         coffeeAmountChanged()
-        
-        
-        
-    }
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        navigationController?.navigationBar.prefersLargeTitles = true
-        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Calculate", style: .plain
-            , target: self, action: #selector(calculateBedtime))
     }
     
+    //MARK: - Selectors
     @objc func sleepAmountChanged() {
         sleepAmountLabel.text = String(format: "%g hours", sleepAmountTime.value)
     }
@@ -122,17 +121,16 @@ class ViewController: UIViewController {
         } else {
             coffeeAmountLabel.text = "\(Int(coffeeAmountStepper.value)) cups"
         }
-        
     }
     
+    // Calculate Your bed time button
     @objc func calculateBedtime() {
-        let model = sleepcalculator()
         
+        let model = sleepcalculator()
         let title: String
         let message: String
         
         do {
-            
             let components = Calendar.current.dateComponents([.hour, .minute], from: wakeUpTime.date)
             let hour = (components.hour ?? 0) * 60 * 60
             let minutes = (components.minute ?? 0) * 60
@@ -145,19 +143,12 @@ class ViewController: UIViewController {
             let wakeDate = wakeUpTime.date - prediction.actualSleep
             message = formatter.string(from: wakeDate)
             title = "Your ideal bedtime is..."
-            
-            
-            
         } catch {
-            
             title = "Error"
             message = "Sorry"
         }
-        
         let ac = UIAlertController(title: title, message: message, preferredStyle: .alert)
         ac.addAction(UIAlertAction(title: "Ok", style: .default))
         present(ac, animated: true)
     }
-    
 }
-
